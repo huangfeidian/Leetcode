@@ -3,7 +3,10 @@
 #include <algorithm>
 #include <stdint.h>
 #include <limits.h>
+#include <unordered_set>
+#include <iterator>
 using namespace std;
+using cvec_iter = decltype(declval<vector<int>>().cbegin());
 class Solution
 {
 public:
@@ -30,7 +33,59 @@ public:
 			}
 		}
 	}
-	using cvec_iter = decltype(declval<vector<int>>().cbegin());
+	vector<pair<int, int>> LineartwoSum(vector<int>& nums, int target)
+	{
+		vector<pair<int, int>> result;
+		int begin = 0;
+		int end = nums.size() - 1;
+		while (begin < end)
+		{
+			if (nums[begin] + nums[end] ==target)
+			{
+				result.push_back(make_pair(begin, end));
+				begin++;
+				end--;
+			}
+			else
+			{
+				if (nums[begin] + nums[end] < target)
+				{
+					begin++;
+				}
+				else
+				{
+					end--;
+				}
+			}
+		}
+		return result;
+	}
+	vector<pair<int, int>> LineartwoSum(const int* begin,const int* end, int target)
+	{
+		vector<pair<int, int>> result;
+		while (begin < end)
+		{
+			if (*begin + *end == target)
+			{
+				result.push_back(make_pair(*begin, *end));
+				begin++;
+				end--;
+			}
+			else
+			{
+				if (*begin + *end < target)
+				{
+					begin++;
+				}
+				else
+				{
+					end--;
+				}
+			}
+		}
+		return result;
+	}
+	
 	int findnth(cvec_iter vec1_begin, cvec_iter vec1_end, cvec_iter vec2_begin, cvec_iter vec2_end, int k)
 	{
 		int size1 = distance(vec1_begin, vec1_end);
@@ -229,5 +284,818 @@ public:
 		}
 		return max_area;
 		
+	}
+	vector<vector<int>> threeSum(vector<int>& nums)
+	{
+
+		vector<vector<int>> result;
+		if (nums.size() < 3)
+		{
+			return result;
+		}
+		sort(nums.begin(), nums.end());
+		vector<int> double_kill;
+		bool zero_triple = false;
+		unordered_set<int> hash_set;
+		int prev = nums[0];
+		int counter = 1;
+		for (int i = 1; i < nums.size(); i++)
+		{
+			if (nums[i] == prev)
+			{
+				counter++;
+			}
+			else
+			{
+				if (counter >= 2)
+				{
+					if (counter >= 3 && prev == 0)
+					{
+						zero_triple = true;
+					}
+
+					double_kill.push_back(prev);
+
+				}
+				hash_set.insert(prev);
+				prev = nums[i];
+				counter = 1;
+			}
+		}
+		if (counter >= 2)
+		{
+			if (counter >= 3 && prev == 0)
+			{
+				zero_triple = true;
+			}
+
+			double_kill.push_back(prev);
+
+		}
+
+		hash_set.insert(prev);
+		if (zero_triple == true)
+		{
+			vector<int> temp;
+			temp.push_back(0);
+			temp.push_back(0);
+			temp.push_back(0);
+			result.push_back(temp);
+		}
+		vector<int> new_nums;
+		std::unique_copy(nums.begin(), nums.end(), std::back_inserter(new_nums));
+		for (int i = 0; i < new_nums.size(); i++)
+		{
+			if (nums[i] < 0)
+			{
+				for (int j = i + 1; j < new_nums.size(); j++)
+				{
+					if (new_nums[j] + new_nums[i] < 0 && (0 - new_nums[i] - new_nums[j] >new_nums[j]) && (hash_set.find(0 - new_nums[i] - new_nums[j]) != hash_set.end()))
+					{
+						vector<int> temp;
+						temp.push_back(new_nums[i]);
+						temp.push_back(new_nums[j]);
+						temp.push_back(0 - new_nums[i] - new_nums[j]);
+						result.push_back(temp);
+					}
+				}
+			}
+		}
+		for (int i = 0; i < double_kill.size(); i++)
+		{
+			if (double_kill[i] != 0)
+			{
+				if (hash_set.find(0 - 2 * double_kill[i]) != hash_set.end())
+				{
+					if (double_kill[i]>0)
+					{
+						vector<int> temp;
+						temp.push_back(0 - 2 * double_kill[i]);
+						temp.push_back(double_kill[i]);
+						temp.push_back(double_kill[i]);
+						result.push_back(temp);
+					}
+					else
+					{
+						vector<int> temp;
+
+						temp.push_back(double_kill[i]);
+						temp.push_back(double_kill[i]);
+						temp.push_back(0 - 2 * double_kill[i]);
+						result.push_back(temp);
+					}
+				}
+			}
+
+		}
+		return result;
+	}
+	int threeSumClosest(vector<int>& nums, int target)
+	{
+		int result;
+		if (nums.size() < 3)
+		{
+			return 0;
+		}
+		sort(nums.begin(), nums.end());
+		vector<int> double_kill;
+		vector<int> triple_kill;
+		int prev = nums[0];
+		int counter = 1;
+		for (int i = 1; i < nums.size(); i++)
+		{
+			if (nums[i] == prev)
+			{
+				counter++;
+			}
+			else
+			{
+				if (counter >= 2)
+				{
+					if (counter >= 3)
+					{
+						triple_kill.push_back(prev);
+					}
+
+					double_kill.push_back(prev);
+
+				}
+				prev = nums[i];
+				counter = 1;
+			}
+		}
+		if (counter >= 2)
+		{
+			if (counter >= 3)
+			{
+				triple_kill.push_back(prev);
+			}
+
+			double_kill.push_back(prev);
+
+		}
+		vector<int> new_nums;
+
+		std::unique_copy(nums.begin(), nums.end(), std::back_inserter(new_nums));
+		int new_size = new_nums.size();
+		result = nums[0] + nums[1] + nums[2];
+		for (int i = 0; i < new_size - 2; i++)
+		{
+
+			for (int j = i + 1; j < new_size - 1; j++)
+			{
+				auto lower = lower_bound(&new_nums[j], &new_nums[0] + new_size, target - new_nums[i] - new_nums[j]);
+				int a = lower - &new_nums[0] - 1;
+				int b = lower - &new_nums[0];
+				int k = lower - &new_nums[0] - 1 > j + 1 ? lower - &new_nums[0] - 1 : j + 1;
+				for (; k < new_nums.size() && k<lower - &new_nums[0] + 2; k++)
+				{
+
+					int current_result = new_nums[i] + new_nums[j] + new_nums[k];
+					if (abs(current_result - target) < abs(result - target))
+					{
+						result = current_result;
+					}
+					if (result == target)
+					{
+						return result;
+					}
+				}
+			}
+
+		}
+		for (int i = 0; i < double_kill.size(); i++)
+		{
+
+			int left = target - 2 * double_kill[i];
+			auto lower = lower_bound(new_nums.begin(), new_nums.end(), left);
+			if (lower != new_nums.end() && *lower != double_kill[i])
+			{
+				int current_result = 2 * double_kill[i] + *lower;
+				if (abs(current_result - target) < abs(result - target))
+				{
+					result = current_result;
+				}
+			}
+			if (lower != new_nums.begin() && *(--lower) != double_kill[i])
+			{
+				int current_result = 2 * double_kill[i] + *lower;
+				if (abs(current_result - target) < abs(result - target))
+				{
+					result = current_result;
+				}
+			}
+			if (result == target)
+			{
+				return result;
+			}
+		}
+		for (auto i : triple_kill)
+		{
+			int current_result = 3 * i;
+			if (abs(current_result - target) < abs(result - target))
+			{
+				result = current_result;
+			}
+		}
+		return result;
+	}
+
+	vector<vector<int>> fourSum(vector<int>& nums, int target)
+	{
+		vector<vector<int>> result;
+		if (nums.size() < 4)
+		{
+			return result;
+		}
+		sort(nums.begin(), nums.end());
+		vector<int> double_kill;
+		vector<int> trible_kill;
+		vector<int> monster_kill;
+		unordered_set<int> hash_set;
+		unordered_set<int> double_set;
+		int prev = nums[0];
+		int counter = 1;
+		for (int i = 1; i < nums.size(); i++)
+		{
+			if (nums[i] == prev)
+			{
+				counter++;
+			}
+			else
+			{
+				switch (counter)
+				{
+				case 1:
+					break;
+				case 2:
+					double_set.insert(prev);
+					double_kill.push_back(prev);
+					break;
+				case 3:
+					double_set.insert(prev);
+					double_kill.push_back(prev);
+					trible_kill.push_back(prev);
+					break;
+				default:
+					double_set.insert(prev);
+					double_kill.push_back(prev);
+					trible_kill.push_back(prev);
+					monster_kill.push_back(prev);
+					break;
+				}
+				hash_set.insert(prev);
+				prev = nums[i];
+				counter = 1;
+			}
+		}
+		switch (counter)
+		{
+		case 1:
+			break;
+		case 2:
+			double_set.insert(prev);
+			double_kill.push_back(prev);
+			break;
+		case 3:
+			double_set.insert(prev);
+			double_kill.push_back(prev);
+			trible_kill.push_back(prev);
+			break;
+		default:
+			double_set.insert(prev);
+			double_kill.push_back(prev);
+			trible_kill.push_back(prev);
+			monster_kill.push_back(prev);
+			break;
+		}
+		hash_set.insert(prev);
+		vector<int> new_nums;
+		std::unique_copy(nums.begin(), nums.end(), std::back_inserter(new_nums));
+		int new_size = new_nums.size();
+		for (int i = 0; i < new_size - 3 && new_nums[i] <= target / 4; i++)
+		{
+			for (int j = i + 1; j < new_size - 2 && new_nums[i] + new_nums[j] <= target / 2; j++)
+			{
+				auto partial_result = LineartwoSum(&new_nums[j + 1], &new_nums[new_size - 1], target - new_nums[i] - new_nums[j]);
+				for (auto k : partial_result)
+				{
+					vector<int> temp;
+					temp.push_back(new_nums[i]);
+					temp.push_back(new_nums[j]);
+					temp.push_back(k.first);
+					temp.push_back(k.second);
+					result.push_back(temp);
+				}
+			}
+		}
+		for (int i = 0; i < double_kill.size(); i++)
+		{
+			int left = target - 2 * double_kill[i];
+			if (left % 2 == 0 && double_set.find(left / 2) != double_set.end() && left / 2 > double_kill[i])
+			{
+				vector<int> temp;
+				temp.push_back(double_kill[i]);
+				temp.push_back(double_kill[i]);
+				temp.push_back(left / 2);
+				temp.push_back(left / 2);
+				result.push_back(temp);
+			}
+			auto partial_result = LineartwoSum(&new_nums[0], &new_nums[new_size - 1], left);
+			for (auto j : partial_result)
+			{
+				vector<int> temp;
+				if (double_kill[i] < j.first)
+				{
+
+					temp.push_back(double_kill[i]);
+					temp.push_back(double_kill[i]);
+					temp.push_back(j.first);
+					temp.push_back(j.second);
+					result.push_back(temp);
+				}
+				if (j.first < double_kill[i] && double_kill[i] < j.second)
+				{
+
+
+					temp.push_back(j.first);
+					temp.push_back(double_kill[i]);
+					temp.push_back(double_kill[i]);
+					temp.push_back(j.second);
+					result.push_back(temp);
+				}
+				if (double_kill[i] > j.second)
+				{
+
+
+					temp.push_back(j.first);
+
+					temp.push_back(j.second);
+					temp.push_back(double_kill[i]);
+					temp.push_back(double_kill[i]);
+					result.push_back(temp);
+				}
+
+			}
+		}
+		for (int i = 0; i < trible_kill.size(); i++)
+		{
+			if (hash_set.find(target - 3 * trible_kill[i]) != hash_set.end() && 4 * trible_kill[i] != target)
+			{
+				vector<int> temp;
+				if (4 * trible_kill[i] < target)
+				{
+
+					temp.push_back(trible_kill[i]);
+					temp.push_back(trible_kill[i]);
+					temp.push_back(trible_kill[i]);
+					temp.push_back(target - 3 * trible_kill[i]);
+				}
+				else
+				{
+					temp.push_back(target - 3 * trible_kill[i]);
+					temp.push_back(trible_kill[i]);
+					temp.push_back(trible_kill[i]);
+					temp.push_back(trible_kill[i]);
+
+				}
+				result.push_back(temp);
+			}
+		}
+		for (int i = 0; i < monster_kill.size(); i++)
+		{
+			if (4 * monster_kill[i] == target)
+			{
+				vector<int> temp;
+				temp.push_back(monster_kill[i]);
+				temp.push_back(monster_kill[i]);
+				temp.push_back(monster_kill[i]);
+				temp.push_back(monster_kill[i]);
+				result.push_back(temp);
+			}
+		}
+		return result;
+	}
+	vector<string> generateParenthesis(int n)
+	{
+		vector<vector<string>> all_parenthese;
+		all_parenthese.push_back(vector<string>());
+		all_parenthese[0].push_back("");
+		all_parenthese.push_back(vector<string>());
+		all_parenthese[1].push_back("()");
+		for (int i = 2; i < n + 1; i++)
+		{
+			all_parenthese.push_back(vector<string>());
+			for (int j = 1; j <= i; j++)
+			{
+				auto left = all_parenthese[j - 1];
+				auto right = all_parenthese[i - j];
+				for (auto s : left)
+				{
+					for (auto m : right)
+					{
+						all_parenthese[i].push_back('(' + s + ')' + m);
+					}
+				}
+			}
+		}
+		return all_parenthese[n];
+	}
+	int removeDuplicates(vector<int>& nums)
+	{
+		/*auto new_iter = unique(nums.begin(), nums.end());
+		return distance(nums.begin(), new_iter);*/
+		if (nums.size() == 0)
+		{
+			return 0;
+		}
+		int length = 1;
+		int prev = nums[0];
+		
+		for (int i = 1; i < nums.size(); i++)
+		{
+			if (nums[i] != prev)
+			{
+				nums[length++] = nums[i];
+				prev = nums[i];
+			}
+		}
+		return length;
+	}
+	int removeElement(vector<int>& nums, int val)
+	{
+		int length = 0;
+		for (int i = 0; i < nums.size(); i++)
+		{
+			if (nums[i] != val)
+			{
+				nums[length++] = nums[i];
+			}
+		}
+		return length;
+	}
+	int firstMissingPositive(vector<int>& nums)
+	{
+		int i = 0, j;
+		int n = nums.size();
+		while (i < n)
+		{
+			if (nums[i] != i + 1 && nums[i] > 0 && nums[i] <= n && nums[i] != nums[nums[i] - 1])
+			{
+				swap(nums[i], nums[nums[i] - 1]);
+			}
+
+			else
+			{
+				i++;
+			}
+		}
+
+		for (j = 0; j < n; j++)
+		{
+			if (nums[j] != j + 1)
+			{
+				return j + 1;
+			}
+
+		}
+
+		return n + 1;
+	}
+	int trap(vector<int>& height)
+	{
+		vector<int> right_height(height.size(), 0);
+		int current_height = 0;
+		for (int i = height.size() - 1; i >= 0; i--)
+		{
+			
+			right_height[i] = current_height;
+			if (height[i]>current_height)
+			{
+				current_height = height[i];
+			}
+			
+		}
+		current_height = 0;
+		int total = 0;
+		for (int i = 0; i < height.size(); i++)
+		{
+			int min = std::min(current_height, right_height[i]);
+			if (min>height[i])
+			{
+				total += min - height[i];
+
+			}
+			if (height[i] > current_height)
+			{
+				current_height = height[i];
+			}
+
+		}
+		return total;
+	}
+	int longestValidParentheses(string s)
+	{
+		int size = s.length();
+		if (size < 2)
+		{
+			return 0;
+		}
+		int max = 0;
+		vector<int> result(size, 0);
+		for (int i = 1; i < size; i++)
+		{
+			if (s[i] == ')')
+			{
+				if (s[i - 1] == ')')
+				{
+					int left = i - result[i - 1]-1;
+					if (left >= 0 && s[left] == '(')
+					{
+						result[i] = result[i - 1] + 2;
+						if (left > 1)
+						{
+							result[i] += result[left - 1];
+						}
+						max = max > result[i] ? max : result[i];
+					}
+					else
+					{
+						result[i] = 0;
+					}
+				}
+				else
+				{
+					result[i] = 2;
+					if (i > 2 && s[i - 2] == ')')
+					{
+						result[i] += result[i - 2];
+					}
+					max = max > result[i] ?  max : result[i];
+				}
+			}
+		}
+		return max;
+	}
+	vector<vector<int>> help_combSum(int* begin, int * end, int target)
+	{
+		vector<vector<int>> result;
+		if (begin == end)
+		{
+			return result;
+		}
+		if (*begin > target)
+		{
+			return result;
+		}
+		for (int i = 0; i <= target / (*begin); i++)
+		{
+			int new_target = target - i*(*begin);
+			vector<int> temp;
+			for (int k = 0; k < i; k++)
+			{
+				temp.push_back(*begin);
+			}
+			if (new_target == 0)
+			{
+				result.push_back(temp);
+			}
+			else
+			{
+				auto temp_result = help_combSum(begin + 1, end,new_target );
+				if (temp_result.size() != 0)
+				{
+					for (auto s : temp_result)
+					{
+						vector<int> new_temp = temp;
+						copy(s.begin(), s.end(), back_inserter(new_temp));
+						result.push_back(new_temp);
+					}
+					
+				}
+			}
+			
+		}
+		return result;
+	}
+	
+	vector<vector<int>> combinationSum(vector<int>& candidates, int target)
+	{
+		sort(candidates.begin(), candidates.end());
+		int length= distance(candidates.begin(), unique(candidates.begin(), candidates.end()));
+		return help_combSum(&candidates[0], &candidates[length], target);
+
+	}
+	map<int, int> dup_counter;
+	vector<vector<int>> help_combSum2(int* begin, int * end, int target)
+	{
+		vector<vector<int>> result;
+		if (begin == end)
+		{
+			return result;
+		}
+		if (*begin > target)
+		{
+			return result;
+		}
+		int max_counter = std::min(target / (*begin), dup_counter[*begin]);
+		for (int i = 0; i <=max_counter; i++)
+		{
+			int new_target = target - i*(*begin);
+			vector<int> temp;
+			for (int k = 0; k < i; k++)
+			{
+				temp.push_back(*begin);
+			}
+			if (new_target == 0)
+			{
+				result.push_back(temp);
+			}
+			else
+			{
+				auto temp_result = help_combSum(begin + 1, end, new_target);
+				if (temp_result.size() != 0)
+				{
+					for (auto s : temp_result)
+					{
+						vector<int> new_temp = temp;
+						copy(s.begin(), s.end(), back_inserter(new_temp));
+						result.push_back(new_temp);
+					}
+
+				}
+			}
+
+		}
+		return result;
+	}
+	vector<vector<int>> combinationSum2(vector<int>& candidates, int target)
+	{
+		sort(candidates.begin(), candidates.end());
+		int prev = candidates[0];
+		int counter = 1;
+		for (int i = 1; i < candidates.size(); i++)
+		{
+			if (candidates[i] == prev)
+			{
+				counter++;
+			}
+			else
+			{
+				dup_counter[prev]=counter;
+				prev = candidates[i];
+				counter = 1;
+			}
+		}
+		dup_counter[prev] = counter;
+		int length = distance(candidates.begin(), unique(candidates.begin(), candidates.end()));
+		return help_combSum2(&candidates[0], &candidates[length], target);
+	}
+	int maxSubArray(vector<int>& nums)
+	{
+		int max = nums[0];
+		int current_sum = nums[0];
+		int size = nums.size();
+		for (int i = 1; i < size; i++)
+		{
+
+			if (current_sum <0)
+			{
+				current_sum = 0;
+			}
+			current_sum += nums[i];
+			if (current_sum > max)
+			{
+				max = current_sum;
+			}
+
+		}
+		return max;
+
+	}
+	bool canJump(vector<int>& nums)
+	{
+		int max_end = 0;
+		int current = 0;
+		for (int i = 0; i < nums.size(); i++)
+		{
+			if (i > max_end)
+			{
+				return false;
+			}
+			else
+			{
+				int temp = nums[i] + i;
+				max_end = std::max(temp, max_end);
+				if (max_end >= nums.size() - 1)
+				{
+					return true;
+				}
+			}
+		}
+	}
+	int removeDuplicates(vector<int>& nums)
+	{
+		if (nums.size() == 0)
+		{
+			return 0;
+		}
+		int length = 1;
+		int prev = nums[0];
+
+		for (int i = 1; i < nums.size(); i++)
+		{
+			if (nums[i] != prev)
+			{
+				nums[length++] = nums[i];
+				prev = nums[i];
+			}
+		}
+		return length;
+	}
+	int removeDuplicates2(vector<int>& nums)
+	{
+		if (nums.size() == 0)
+		{
+			return 0;
+		}
+		int length = 1;
+		int counter = 1;
+		int prev = nums[0];
+		for (int i = 1; i < nums.size(); i++)
+		{
+			if (nums[i] != prev)
+			{
+				nums[length++] = nums[i];
+				prev = nums[i];
+				counter=1;
+			}
+			else
+			{
+				if (counter == 1)
+				{
+					nums[length++] = nums[i];
+				}
+				counter++;
+			}
+		}
+		return length;
+	}
+	int climbStairs(int n)
+	{
+		vector<int> ways(n, 0);
+		ways[0] = 1;
+		ways[1] = 2;
+		for (int i = 2; i < n; i++)
+		{
+			ways[i] = ways[i - 1] + ways[i - 2];
+		}
+		return ways[n - 1];
+	}
+	int largestRectangleArea(vector<int>& height)
+	{
+
+		vector<pair<int, int>> increasing_h;
+		int size = 1;
+		int max = 0;
+		increasing_h.push_back(make_pair(-1, -1));
+		height.push_back(0);
+		for (int i = 0; i < height.size(); i++)
+		{
+			while ( increasing_h[size - 1].first >= height[i])
+			{
+				int current_result = increasing_h[size - 1].first  * (i - increasing_h[size - 2].second - 1);
+				max = std::max(max, current_result);
+				increasing_h.pop_back();
+				size--;
+			}
+			increasing_h.push_back(make_pair(height[i], i));
+			size++;
+
+
+		}
+		return max;
+	}
+	int maximalRectangle(vector<vector<char>>& matrix)
+	{
+		vector<int> temp(matrix[0].size(), 0);
+		int max = 0;
+		for (const auto& i : matrix)
+		{
+			for (int j = 0; j < i.size(); j++)
+			{
+				if (i[j] == '1')
+				{
+					temp[j]++;
+				}
+				else
+				{
+					temp[j] = 0;
+				}
+			}
+			int temp_area = largestRectangleArea(temp);
+			max = std::max(temp_area, max);
+		}
+		return max;
 	}
 };

@@ -3,6 +3,8 @@
 #include <vector>
 #include <algorithm>
 #include <unordered_set>
+#include <stack>
+
 using namespace std;
 int lengthOfLongestSubstring(string s)
 {
@@ -177,108 +179,112 @@ string longestCommonPrefix(vector<string>& strs)
 	}
 	return current_prefix;
 }
-vector<vector<int>> threeSum(vector<int>& nums)
+bool isValid(string s)
 {
-
-	vector<vector<int>> result;
-	if (nums.size() < 3)
+	stack<char> paren;
+	for (auto i : s)
 	{
-		return result;
-	}
-	sort(nums.begin(), nums.end());
-	vector<int> double_kill;
-	bool zero_triple = false;
-	unordered_set<int> hash_set;
-	int prev = nums[0];
-	int counter = 1;
-	for (int i = 1; i < nums.size(); i++)
-	{
-		if (nums[i] == prev)
+		switch (i)
 		{
-			counter++;
-		}
-		else
-		{
-			if (counter >= 2)
+		case '(':
+		case '{':
+		case '[':
+			paren.push(i);
+			break;
+		case ')':
+			if (paren.empty())
 			{
-				if (counter >= 3 && prev == 0)
-				{
-					zero_triple = true;
-				}
-
-				double_kill.push_back(prev);
-
+				return false;
 			}
-			hash_set.insert(prev);
-			prev = nums[i];
-			counter = 1;
-		}
-	}
-	if (counter >= 2)
-	{
-		if (counter >= 3 && prev == 0)
-		{
-			zero_triple = true;
-		}
-
-		double_kill.push_back(prev);
-
-	}
-
-	hash_set.insert(prev);
-	if (zero_triple == true)
-	{
-		vector<int> temp;
-		temp.push_back(0);
-		temp.push_back(0);
-		temp.push_back(0);
-		result.push_back(temp);
-	}
-	vector<int> new_nums;
-	std::unique_copy(nums.begin(), nums.end(), back_inserter(new_nums));
-	for (int i = 0; i < new_nums.size(); i++)
-	{
-		if (nums[i] < 0)
-		{
-			for (int j = i + 1; j < new_nums.size(); j++)
+			if (paren.top() != '(')
 			{
-				if (new_nums[j] + new_nums[i] < 0 && (0 - new_nums[i] - new_nums[j] >new_nums[j]) && (hash_set.find(0 - new_nums[i] - new_nums[j]) != hash_set.end()))
-				{
-					vector<int> temp;
-					temp.push_back(new_nums[i]);
-					temp.push_back(new_nums[j]);
-					temp.push_back(0 - new_nums[i] - new_nums[j]);
-					result.push_back(temp);
-				}
+				return false;
 			}
+			else
+			{
+				paren.pop();
+			}
+			break;
+		case '}':
+			if (paren.empty())
+			{
+				return false;
+			}
+			if (paren.top() != '{')
+			{
+				return false;
+			}
+			else
+			{
+				paren.pop();
+			}
+			break;
+		case ']':
+			if (paren.empty())
+			{
+				return false;
+			}
+			if (paren.top() != '[')
+			{
+				return false;
+			}
+			else
+			{
+				paren.pop();
+			}
+			break;
 		}
 	}
-	for (int i = 0; i < double_kill.size(); i++)
+	if (paren.empty())
 	{
-		if (double_kill[i] != 0)
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+vector<int> generate_kmp_array(string s)
+{
+	int length = s.length();
+	vector<int> result(length, 0);
+	int k= 0;
+	for (int i = 1; i < length; i++)
+	{
+		while (k>0 && s[k] != s[i])
 		{
-			if (hash_set.find(0 - 2 * double_kill[i]) != hash_set.end())
-			{
-				if (double_kill[i]>0)
-				{
-					vector<int> temp;
-					temp.push_back(0 - 2 * double_kill[i]);
-					temp.push_back(double_kill[i]);
-					temp.push_back(double_kill[i]);
-					result.push_back(temp);
-				}
-				else
-				{
-					vector<int> temp;
-
-					temp.push_back(double_kill[i]);
-					temp.push_back(double_kill[i]);
-					temp.push_back(0 - 2 * double_kill[i]);
-					result.push_back(temp);
-				}
-			}
+			k = result[k - 1];
 		}
-
+		if (s[k] == s[i])
+		{
+			k++;
+		}
+		result[i] = k;
 	}
 	return result;
+}
+int strStr(string haystack, string neddle)
+{
+	if (neddle.length() == 0)
+	{
+		return 0;
+	}
+	vector<int> kmp_vec = generate_kmp_array(neddle);
+	int k = 0;
+	for (int i = 0; i < haystack.length(); i++)
+	{
+		while (k>0 && haystack[i] != neddle[k])
+		{
+			k = kmp_vec[k - 1];
+		}
+		if (haystack[i] == neddle[k])
+		{
+			k++;
+		}
+		if (k == neddle.length())
+		{
+			return i - k+1;
+		}
+	}
+	return -1;
 }
