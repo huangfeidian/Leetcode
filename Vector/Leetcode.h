@@ -1098,4 +1098,155 @@ public:
 		}
 		return max;
 	}
+	int search(vector<int>& nums, int target)
+	{
+		if (nums.size() == 0)
+		{
+			return -1;
+		}
+		int begin =0;
+		int end = nums.size();
+		while (begin != end)
+		{
+			int middle = (begin + end ) / 2;
+			if (nums[middle] == target)
+			{
+				return middle;
+			}
+			if (nums[middle] < nums[begin])
+			{
+				if (target > nums[middle]&&target<nums[begin])
+				{
+					begin = middle + 1;
+					
+				}
+				else
+				{
+					end = middle;
+				}
+			}
+			else
+			{
+				if (target >= nums[begin]&& target<nums[middle])
+				{
+					end = middle;
+				}
+				else
+				{
+					begin = middle + 1;
+				}
+			}
+		}
+		return -1;
+	}
+	void permute_dfs(vector<vector<int>>& result, vector<int>& input, int k)
+	{
+		if (k == input.size())
+		{
+			result.push_back(input);
+		}
+		else
+		{
+			for (int i = k; i < input.size(); i++)
+			{
+				swap(input[k], input[i]);
+				permute_dfs(result, input, k + 1);
+				swap(input[k], input[i]);
+			}
+		}
+	}
+	vector<vector<int>> permute(vector<int>& nums)
+	{
+		vector<vector<int>> result;
+		permute_dfs(result, nums, 0);
+		return result;
+	}
+
+	vector<vector<int>> permuteUnique(vector<int>& nums)
+	{
+
+	}
+	using vec_iter = decltype(declval<vector<int>>().begin());
+	bool my_next_permu(vector<int>& hehe)
+	{
+		if (hehe.size()<2)
+		{
+			return false;
+		}
+		int size = hehe.size();
+		int cursor = size - 1;
+		while (cursor > 0 && hehe[cursor - 1] >= hehe[cursor])
+		{
+			cursor--;
+		}
+		if (cursor == 0)
+		{
+			return false;
+		}
+		else
+		{
+			std::reverse(&hehe[cursor], &hehe[size - 1] + 1);
+			auto upper = upper_bound(&hehe[cursor], &hehe[size - 1] + 1, hehe[cursor - 1]);
+			int temp = *upper;
+			*upper = hehe[cursor - 1];
+			hehe[cursor - 1] = temp;
+			return true;
+		}
+	}
+
+
+	vector<vector<int>> subsets(vector<int>& nums)
+	{
+		sort(nums.begin(), nums.end());
+		int size = nums.size();
+		vector<vector<int>> result;
+		result.push_back(vector<int>());
+		uint32_t bit_mask = (1 << size) - 1;
+		while (bit_mask > 0)
+		{
+			int i = 0;
+			vector<int> temp_set;
+			uint32_t temp = bit_mask;
+			while (temp != 0)
+			{
+				if (temp&(1 << i))
+				{
+					temp_set.push_back(nums[i]);
+					temp = temp - (1 << i);
+				}
+				i++;
+			}
+			result.push_back(temp_set);
+			bit_mask--;
+		}
+		return result;
+	}
+	int break_point(int* begin,int* end)
+	{
+		if (end - begin < 2)
+		{
+			return 0;
+		}
+
+		if (*(end - 1) > *begin)
+		{
+			return 0;
+		}
+		int* middle = begin + (end - begin) / 2;
+		if (*middle == *begin)
+		{
+			return break_point(begin, middle + 1) | break_point(middle, end);
+		}
+		else
+		{
+			if (*middle > *begin)
+			{
+				return break_point(middle, end);
+			}
+			else
+			{
+				return break_point(begin, middle + 1);
+			}
+		}
+	}
 };

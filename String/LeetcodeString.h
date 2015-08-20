@@ -288,3 +288,56 @@ int strStr(string haystack, string neddle)
 	}
 	return -1;
 }
+int minDistance(string word1, string word2)
+{
+	int size1 = word1.size();
+	int size2 = word2.size();
+	vector<vector<int>> distance(size1+1, vector<int>(size2+1, 0));
+	for (int i = 0; i < size2 + 1; i++)
+	{
+		distance[0][i] = i;
+	}
+	for (int i = 0; i < size1 + 1; i++)
+	{
+		distance[i][0] = i;
+	}
+	for (int i = 1; i < size1 + 1; i++)
+	{
+		for (int j = 1; j < size2 + 1; j++)
+		{
+			distance[i][j] = std::min(distance[i - 1][j] + 1, distance[i][j - 1] + 1);
+			if (word1[i - 1] == word2[j - 1])
+			{
+				distance[i][j] = std::min(distance[i - 1][j - 1], distance[i-1][j-1]);
+			}
+			else
+			{
+				distance[i][j] = std::min(distance[i - 1][j - 1]+1, distance[i - 1][j - 1]);
+			}
+		}
+	}
+	return distance[size1][size2];
+}
+int lengthOfLastWord(string s)
+{
+	int size = s.length();
+	if (size == 0)
+	{
+		return 0;
+	}
+	int index = size - 1;
+	while (index >= 0 && s[index] == ' ')
+	{
+		index--;
+	}
+	if (index == -1)
+	{
+		return size;
+	}
+	int new_index = index;
+	while (new_index >= 0 && new_index != ' ')
+	{
+		new_index--;
+	}
+	return index - new_index;
+}

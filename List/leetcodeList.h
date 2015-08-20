@@ -274,3 +274,33 @@ ListNode *rotateRight(ListNode *head, int k)
 	return head;
 
 }
+ListNode* deleteDuplicates(ListNode* head)
+{
+	if (head == nullptr)
+	{
+		return head;
+	}
+	vector<ListNode*> result;
+	ListNode* prev = head;
+	head = head->next;
+	while (head)
+	{
+		if (head->val != prev->val)
+		{
+			result.push_back(prev);
+			prev = head;
+		}
+		head = head->next;
+	}
+	result.push_back(prev);
+	ListNode new_head(0);
+	ListNode* pnew_head = &new_head;
+	ListNode* new_tail = pnew_head;
+	for (auto i : result)
+	{
+		new_tail->next = i;
+		new_tail = i;
+	}
+	new_tail->next = nullptr;
+	return pnew_head->next;
+}
